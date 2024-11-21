@@ -6,7 +6,7 @@
 /*   By: ababdoul <ababdoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 13:16:28 by ababdoul          #+#    #+#             */
-/*   Updated: 2024/11/21 00:58:17 by ababdoul         ###   ########.fr       */
+/*   Updated: 2024/11/21 11:42:42 by ababdoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,29 +14,30 @@
 
 size_t	ft_strlen(const char *s)
 {
-    size_t  i;
+	size_t	i;
 
-    i = 0;
-    while(s[i] != '\0')
-        i++;
-    return (i);
+	i = 0;
+	while (s[i] != '\0')
+		i++;
+	return (i);
 }
+
 char	*ft_strdup(const char *str)
 {
-    int     i;
-    char    *p;
+	int		i;
+	char	*p;
 
-    i = 0;
-    p = malloc(sizeof(char) * (ft_strlen(str) + 1));
-    if (p == NULL)
-        return (NULL);
-    while (str[i] != '\0')
-    {
-        p[i] = str[i];
-        i++;
-    }
-    p[i] = '\0';
-    return (p);
+	i = 0;
+	p = malloc(sizeof(char) * (ft_strlen(str) + 1));
+	if (p == NULL)
+		return (NULL);
+	while (str[i] != '\0')
+	{
+		p[i] = str[i];
+		i++;
+	}
+	p[i] = '\0';
+	return (p);
 }
 
 char	*ft_strchr(char *s, int c)
@@ -54,6 +55,7 @@ char	*ft_strchr(char *s, int c)
 		return ((char *)&s[i]);
 	return (NULL);
 }
+
 char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*p;
@@ -81,6 +83,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	p[i] = '\0';
 	return (p);
 }
+
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	size_t	i;
@@ -102,34 +105,5 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 		i++;
 	}
 	p[i] = '\0';
-	return (p);
-}
-void	ft_bzero(void *s, size_t n)
-{
-	size_t			i;
-	unsigned char	*p;
-
-	p = (unsigned char *)s;
-	i = 0;
-	while (i < n)
-	{
-		p[i] = 0;
-		i++;
-	}
-}
-void	*ft_calloc(size_t count, size_t size)
-{
-	void	*p;
-	size_t	i;
-	size_t	len;
-
-	i = 0;
-	if (count != 0 && SIZE_MAX / count < size)
-		return (NULL);
-	len = count * size;
-	p = (void *)malloc(len);
-	if (p == NULL)
-		return (NULL);
-	ft_bzero(p, len);
 	return (p);
 }
