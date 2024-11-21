@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #ifndef BUFFER_SIZE
-# define BUFFER_SIZE 11
+# define BUFFER_SIZE 42
 #endif
 char    *get_next_line(int fd);
 void    ft_putchar_fd(char c, int fd);
@@ -16,10 +16,9 @@ void    ft_putchar_fd(char c, int fd);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_strjoin(char const *s1, char const *s2);
 char	*ft_strdup(const char *str);
-char	*ft_strchr(const char *s, int c);
+char	*ft_strchr(char *s, int c);
 size_t  ft_strlen(const char *s);
-char	*ft_strncpy(char *dest, char *src, unsigned int n);
-char *ft_strcat(char *dest, char *src);
-char    *ft_strcpy(char *s1, char *s2);
+void	ft_bzero(void *s, size_t n);
+void	*ft_calloc(size_t count, size_t size);
 
 #endif

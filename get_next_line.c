@@ -6,162 +6,100 @@
 /*   By: ababdoul <ababdoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 12:47:22 by ababdoul          #+#    #+#             */
-/*   Updated: 2024/11/20 21:40:26 by ababdoul         ###   ########.fr       */
+/*   Updated: 2024/11/21 01:04:42 by ababdoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static void free_string_array(char **array)
+static char *set_line(char *line_buffer)
 {
-    int i;
-
-    if (!array)
-        return;
+    char    *left_c;
+    ssize_t    i;
+    
     i = 0;
-    while (array[i])
-    {
-        free(array[i]);
+    while (line_buffer[i] != '\n' && line_buffer[i] != '\0')
         i++;
-    }
-    free(array);
-}
-char	*return_line(char **lines, int length)
-{
-	static int	i = 0;
-
-	if (i < length && lines[i] != NULL)
-	{
-		i++;
-		return (lines[i - 1]);
-	}
-	return (NULL);
-}
-int	count_lines(char *str)
-{
-	int	i;
-	int	lines;
-
-	i = 0;
-	lines = 0;
-	while (str[i])
-	{
-		if (str[i] == '\n')
-			lines++;
-		i++;
-	}
-	return (lines + 1);
-}
-char	*allocate_line(char *str, int start, int end)
-{
-	char	*line;
-	int		len;
-
-	len = end - start + 1;
-	line = malloc(len + 1);
-	if (!line)
+    if (line_buffer[i] == 0)
+        return (NULL);
+    left_c = ft_substr(line_buffer, i + 1, ft_strlen(line_buffer) - i);
+    if (*left_c == 0)
     {
-        free(line);
-		return (NULL);
-    }
-	ft_strncpy(line, &str[start], len);
-	line[len] = '\0';
-	return (line);
+        free(left_c);
+        left_c = NULL;
+    }  
+    line_buffer[i + 1] = 0;
+    return (left_c);
 }
-char	**get_lines(char *str, int *line_count)
-{
-	char	**array;
-	int		i;
-	int		j;
-	int		start;
 
-	*line_count = count_lines(str);
-	array = malloc(sizeof(char *) * (*line_count + 1));
-	if (!array)
-    {
-        free_string_array(array);
-		return (NULL);
-    }
-	i = 0;
-	j = 0;
-	start = 0;
-	while (str[i])
+static char	*complete_Buffer(int fd, char *left_c, char *buffer)
+{
+	ssize_t	b_read;
+	char	*tmp;
+
+	b_read = 1;
+	while (b_read > 0)
 	{
-		if (str[i] == '\n')
+		b_read = read(fd, buffer, BUFFER_SIZE);
+		if (b_read == -1)
 		{
-			array[j++] = allocate_line(str, start, i);
-			start = i + 1;
+			free(left_c);
+			return (NULL);
 		}
-		i++;
+		else if (b_read == 0)
+			break ;
+		buffer[b_read] = '\0';
+		if (!left_c)
+			left_c = ft_strdup("");
+		tmp = left_c;
+		left_c = ft_strjoin(tmp, buffer);
+		free(tmp);
+		tmp = NULL;
+		if (ft_strchr(buffer, '\n'))
+			break ;
 	}
-	if (start < i)
-		array[j++] = allocate_line(str, start, i - 1);
-	array[j] = NULL;
-	return (array);
+	return (left_c);
 }
-char	*read_entire_file(int fd)
+char    *get_next_line(int fd)
 {
-	char	buffer[BUFFER_SIZE + 1];
-	char	*str;
-	char	*temp;
-	ssize_t	bytes_read;
-
-	str = malloc(1);
-	if (!str)
+    static char *left_c;
+    char        *line;
+    char        *buffer;
+    
+    buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+    if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
     {
-        free(str);
-		return (NULL);
+        free(left_c);
+        free(buffer);
+        left_c = NULL;
+        buffer = NULL;
+        return (NULL);
     }
-	str[0] = '\0';
-	while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0)
+    if (!buffer)
 	{
-		buffer[bytes_read] = '\0';
-		temp = str;
-		str = malloc(ft_strlen(temp) + bytes_read + 1);
-		if (!str)
-        {
-            free(str);
-			return (NULL);
-        }
-		ft_strcpy(str, temp);
-		ft_strcat(str, buffer);
-		free(temp);
+		free(buffer);
+        return (NULL);
 	}
-	return (str);
+    line = complete_Buffer(fd, left_c, buffer);
+    free(buffer);
+    buffer = NULL;
+    if (!line)
+        return (NULL);
+    left_c = set_line(line);
+    return (line);
 }
 
-char	*get_next_line(int fd)
-{
-	static char	*str = NULL;
-	static char	**lines = NULL;
-	static int	line_count = 0;
-	static int	initialized = 0;
-
-	if (!initialized)
-	{
-		str = read_entire_file(fd);
-		if (!str)
-			return (NULL);
-		lines = get_lines(str, &line_count);
-		if (!lines)
-			return (NULL);
-		initialized = 1;
-	}
-	return (return_line(lines, line_count));
-}
-// int main() {
-//     int fd = open("file.txt", O_RDONLY);
+// int main() 
+// {
+//     int fd = open ("file.txt", O_RDONLY);
 //     if (fd < 0) {
 //         perror("Failed to read the file");
 //         return 1;
 //     }
 
-//     char *line;
-//     while ((line = get_next_line(fd)) != NULL) {
-//         printf("%s", line);
-//         free(line); // Free each line returned by `get_next_line`.
-//     }
-//     close(fd);
-//     //check_leaks(); // Check for memory leaks (optional).
+//     printf("%s\n", get_next_line(fd));
+//     printf("%s\n", get_next_line(fd));
+//     printf("%s\n", get_next_line(fd));
+//     printf("%s\n", get_next_line(fd));
 //     return 0;
 // }
