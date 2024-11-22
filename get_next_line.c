@@ -6,7 +6,7 @@
 /*   By: ababdoul <ababdoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 12:47:22 by ababdoul          #+#    #+#             */
-/*   Updated: 2024/11/21 11:39:29 by ababdoul         ###   ########.fr       */
+/*   Updated: 2024/11/22 15:57:45 by ababdoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ static char	*set_line(char *line_buffer)
 	if (line_buffer[i] == '\0')
 		return (NULL);
 	left_c = ft_substr(line_buffer, i + 1, ft_strlen(line_buffer) - i);
-	if (*left_c == 0)
+	if (*left_c == '\0')
 	{
 		free(left_c);
 		left_c = NULL;
@@ -68,8 +68,7 @@ static char	*complete_buffer(int fd, char *left_c, char *buffer)
 	ssize_t	b_read;
 	char	*tmp;
 
-	b_read = 1;
-	while (b_read > 0)
+	while (1)
 	{
 		b_read = read(fd, buffer, BUFFER_SIZE);
 		if (b_read == -1)
@@ -98,7 +97,7 @@ char	*get_next_line(int fd)
 	char		*line;
 	char		*buffer;
 
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	buffer = malloc((size_t)(BUFFER_SIZE + 1) * sizeof(char));
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 	{
 		free(left_c);
@@ -120,18 +119,3 @@ char	*get_next_line(int fd)
 	left_c = set_line(line);
 	return (line);
 }
-
-// int main() 
-// {
-//     int fd = open ("file.txt", O_RDONLY);
-//     if (fd < 0) {
-//         perror("Failed to read the file");
-//         return 1;
-//     }
-
-//     printf("%s\n", get_next_line(fd));
-//     printf("%s\n", get_next_line(fd));
-//     printf("%s\n", get_next_line(fd));
-//     printf("%s\n", get_next_line(fd));
-//     return 0;
-// }
